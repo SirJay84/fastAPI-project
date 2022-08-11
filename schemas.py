@@ -1,23 +1,54 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional,List
 from datetime import datetime
 
 class TodoBase(BaseModel):
-  id:Optional[int] = None
   title:str
   description:str
   completed:bool
-  created:Optional[datetime] = None
 
 class TodoCreate(TodoBase):
-  completed:bool
+  user_id:int
 
 class TodoPut(TodoBase):
   title:Optional[str]
   description:Optional[str]
   completed:Optional[bool]
 
-class Todo(TodoBase):
+# Properties shared by models stored in DB
+class TodoInDb(TodoBase):
   id:int
-  completed:bool
+  user_id:int
   created:datetime
+  class Config:
+    orm_mode = True
+# Properties to return to client
+class TodoRead(TodoInDb):
+  pass
+  class Config:
+        orm_mode = True
+
+class UserBase(BaseModel):
+  username:str
+  email:str
+class UserCreate(UserBase):
+  pass
+
+class UserInfo(UserBase):
+  id:int
+  is_active:bool
+  class Config:
+    orm_mode = True
+
+class UserRead(UserInfo):
+  todos:List[TodoRead] = []
+  class Config:
+    orm_mode = True
+
+class UserPut(UserBase):
+  username:Optional[str]
+  email:Optional[str]
+  is_active:Optional[bool]
+
+
+
